@@ -1,5 +1,7 @@
 $(document).ready(function() {
-
+    if (!userCheck()) {
+        return;
+    }
     var currDate = new Date();  //获取当前日期
     var table = $(".wrap")[0].getAttribute('data-table');
 

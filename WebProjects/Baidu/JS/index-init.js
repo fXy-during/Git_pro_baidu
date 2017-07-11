@@ -426,15 +426,13 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
     var MaxY = (Math.ceil((maxY+(maxY/4))/10)*10);
 
     var option = {
-            title:{
-                text:"无法显示"
-            },
             legend: {
+                left:"2%",
                 data:['发帖量','跟帖量'],
                 show : true
             },
-            grid:{
-                top:'5%',
+            grid: {
+                top:"40px",
                 bottom:'10%',
                 left:'3%',
                 right:'3%'
@@ -443,18 +441,22 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
                 show:true,
                 trigger: 'axis'
             },
-            // toolbox: {
-            //     show: true,
-            //     feature: {
-            //         magicType: {
-            //             show: true, 
-            //             type: ['stack', 'tiled']
-            //         },
-            //         saveAsImage: {
-            //             show: true
-            //         }
-            //     }
-            // },
+            toolbox: {
+                right:"2%",
+                show: true,
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    magicType: {
+                        show: true, 
+                        type: ['stack', 'tiled', 'bar','line']
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
             xAxis: {
                 type: 'category',
                 data: F_x,
@@ -478,16 +480,16 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
                 }
             },
             yAxis: {
-                type: 'value',
-                min:0,
-                max:MaxY,
-                splitNumber:5,
-                axisLabel:{ 
-                    textStyle:{
-                        color:'#000',
-                        fontSize:12
-                    }
-                }
+                // type: 'value',
+                // min:0,
+                // max:MaxY,
+                // splitNumber:5,
+                // axisLabel:{ 
+                //     textStyle:{
+                //         color:'#000',
+                //         fontSize:12
+                //     }
+                // }
             },
             series:[{
                 markPoint: {
@@ -500,6 +502,11 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
                 lineStyle:{normal:{color: '#145861',width:2} },
                 itemStyle:{normal:{color: '#004c5d'}},
                 data: F_y,
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'}
+                    ]
+                },
                 areaStyle: {
                     normal: {
                         alpha :0.5,
@@ -523,6 +530,11 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
                 lineStyle:{normal:{color: '#9c9c9c',width:2} },
                 itemStyle:{normal:{color: '#572015'}},
                 data: P_y,
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'}
+                    ]
+                },
                 areaStyle: {
                     normal: {
                         alpha :0.5,
@@ -690,4 +702,14 @@ function error(XMLHttpRequest){
         alert("请求失败");
         console.log(XMLHttpRequest);
     }
+}
+function userCheck(){
+    var token = localStorage.getItem("token");
+    var check_flag = true ;
+    if (token==null) {
+        confirm("请登录！");
+        window.location.href = "http://182.150.37.58:81/Baidu/BDo-Login.html";
+        check_flag = false;
+    }
+    return check_flag;
 }
