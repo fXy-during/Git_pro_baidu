@@ -336,23 +336,26 @@ function On_reporter(){  //初始化月份选择、绑定事件
         var url = "/event/report/" + year + "/" + _month;
         var fileName = "西南石油大学"+ year + "年" + _month +"-"+(_month+1)+"月舆情报表"; //
         $.ajax({
-            url: url,
+            url: '/event/report/permission',
             type: 'GET',
             beforeSend:function(request) {
                 request.setRequestHeader("Authorization" , token);
             },
             success:function(data){
                 var a = document.createElement('a');
+                url = url + "?permission=" + data ;
                 a.setAttribute('href' , url);
                 a.setAttribute('download' ,  fileName);
-                console.log(a);
                 a.click();
                 $(a).remove();
             },
             complete:function(xml){
                 if (xml.status==403) {
                     alert("无权操作");
-                }else{
+                }else if (xml.status==200) {
+                    return;
+                }
+                else{
                     error(xml);
                 }
             }
@@ -361,7 +364,6 @@ function On_reporter(){  //初始化月份选择、绑定事件
 }
 function On_UserHead(){/*初始化用户头部信息*/
     var role = localStorage.getItem('role'); 
-    console.log(role);
     var userRole ;
     if (role=="VIP") {userRole = "特权用户";}
     else if (role=="ADMIN") {userRole = "管理员";}
@@ -508,15 +510,19 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
                     ]
                 },
                 areaStyle: {
-                    normal: {
+                    normal: {  /* 蓝色 */
                         alpha :0.5,
                         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0,
-                            color: 'rgb(20, 88, 97)'
-                        }, {
                             offset: 1,
-                            color: 'rgb(71, 118, 194)'
-                        }])
+                            color: '#f2f5f2'
+                        }, {
+                            offset: 0.5,
+                            color: '#65c8d0'
+                        },{
+                            offset:0,
+                            color: '#004c5d'
+                        }
+                        ])
                     }
                 }            
                 },{
@@ -537,20 +543,26 @@ function initEchart(F_x, F_y, P_x, P_y, chart){
                 },
                 areaStyle: {
                     normal: {
-                        alpha :0.5,
+                        alpha :0.2,
                         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                            offset: 0,
-                            color: 'rgb(179,167,164)'
-                        }, {
                             offset: 1,
-                            color: 'rgb(114,113,113)'
+                            color: '#fff'
+                        },{
+                            offset: 0.75,
+                            color: '#ccc'
+                        }, {
+                            offset: 0.3,
+                            color: '#999'                            
+                        },
+                            {
+                            offset: 0,
+                            color: '#7e7e7e'
                         }])
                     }
                 }
             }]
         };
 
-    console.log(option);
     chart.setOption(option);
     window.onresize = function () {
         chart.resize();  //echarts 图表自适应
