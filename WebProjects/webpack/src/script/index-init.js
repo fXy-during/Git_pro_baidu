@@ -34,7 +34,7 @@
 *  
  */
 var Init = {
-    getChartData : function(st,et,source_type,_table){/*获取折线图数据并绘制图形*/
+    getChartData : function(st,et,source_type,_table, ids=[1]){/*获取折线图数据并绘制图形*/
         var chart = echarts.init(document.getElementById("main"));
         var FLLOW_xAxis = [];
         var FLLOW_yAxis = [];
@@ -64,7 +64,8 @@ var Init = {
                 data : "双折线图",
                 beginTime :st,
                 endTime : et,
-                table : _table
+                table : _table,
+                //ids: ids 
             },
             success : function(date) {
                 chart.hideLoading();

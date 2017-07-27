@@ -15,11 +15,11 @@ var userName = localStorage.getItem('loginName');
 var diff_obj ={
     isHandled: 2,
     isFeedBack: 2,
-    all: true,
+    isAll: true,
     more: 0
 }
 
-window.updata = function(page,row){
+window.updata = function(page, row, index){
     console.log(page);
     currPage=page;
     var $table = $('.tableEvent');
@@ -29,17 +29,17 @@ window.updata = function(page,row){
     var default_obj = {
         isHandled: 2,
         isFeedBack: 2,
-        all: true,
+        isAll: true,
         more: 0
     }
-    if (arguments.length==2) {
+    if (arguments.length>=2) {
         default_obj.more = (row - 5);
     }
 
 
     $.extend(default_obj, diff_obj);
 
-    $.ajax({ 
+    $.ajax({
         url:'/event/handledEvent/' + page,
         type: 'get',
         dataType: 'json',
@@ -48,7 +48,25 @@ window.updata = function(page,row){
             request.setRequestHeader("Authorization", token);
         },
         success:function(data) {
-            $.each(data, function(index, val) {
+
+            if (!!index) {
+                $(".zxf_pagediv").createPage({  //分类页数初始化
+                    pageNum: data.pages,//总页码
+                    current: currPage,//当前页
+                    shownum: 9,//分页数
+                    activepaf: "",
+                    backfun: function(e) {
+                        if (!active_flag ) {
+                            updata(e.current,12);
+                        }
+                        else{
+                            updata(e.current);
+                        }
+                    }
+                });
+            };
+            
+            $.each(data.eventPageList, function(index, val) {
                  var $tr =$("<tr></tr>");
                  $tr.append("<td><a title=\'"+val.theme+"\' class='Onlight' target='_blank' href=\'"+val.url+"\'>" + val.theme + "</a></td>");
                      $tr.append("<td title=\'"+val.mainView+"\'>"+val.mainView+"</td>");
@@ -72,8 +90,8 @@ window.updata = function(page,row){
                      });
             });
         },
-        error:function(data){
-             error(data);
+        error:function(xml){
+             error(xml);
         }
     });
 } 
@@ -91,12 +109,12 @@ $(document).ready(function() {
 
     Init.getChartData(Init.format(currDate.getTime()-60*24*60*60*1000,"yyyy-MM-dd"),Init.format(currDate,"yyyy-MM-dd"),'发帖量',table)
         .getPackage()  //加载组件
-        .getPage('/event/handledEvent/pageCount') //获得总页数并且初始化页码
+       // .getPage('/event/handledEvent/pageCount') //获得总页数并且初始化页码
         .bindEvent() //绑定事件
         .bindModule_RoMa()
         .bindModule_Act();
 
-    updata(1);
+    updata(1, 5, true);
 
     Handled.bindEvent();
 });
@@ -167,7 +185,7 @@ var Handled ={
             diff_obj ={
                 isHandled: parseInt(_handled)  || 2,
                 isFeedBack: parseInt(_feedback) || 2,
-                all: _all,
+                isAll: _all,
             }
             if (_handled==0) {
                 diff_obj.isHandled = 0;
@@ -175,10 +193,13 @@ var Handled ={
             if (_feedback==0) {
                 diff_obj.isFeedBack = 0;
             }
-
             if ($('.tableEvent').children().length!=0) {
-                updata(currPage);
-
+                if (!active_flag ) {
+                    updata(1, 12, true);
+                }
+                else{
+                    updata(1, 5, true);
+                }
             }
         }
     },
@@ -279,7 +300,7 @@ function event_radio(){
 
     $('#event-radio-all').click(function(event) { // 全选
         /* Act on the event */
-        $('#handled-not').removeAttr('disabled');
+        $('input[type=radio]').removeAttr('disabled');
         $('.radio-wrap input:lt(4)').prop('checked', false);
         $(this).prop('checked', true);
     });
@@ -305,21 +326,21 @@ function event_del(){
                 return _flag;
             }
         })
+        console.log(_ids);
         if(!_flag){
             alert("删除失败，包含已处置事件！");    
         }else{
-            // console.log(_ids);
-            // alert("功能暂未开放！");    
-            var obj ={
-                ids: _ids
+            if (!confirm('确认删除?')) {
+                return;
             }
             var token = "Bearer "+localStorage.getItem("token");
             $.ajax({
                 url: '/event/handledEvent',
                 type: 'POST',
-                data: JSON.stringify(obj),
+                contentType:"application/json;charset=utf-8",
+                data: JSON.stringify(_ids),
                 success: function(data){
-                    updata(currPage);
+                    updata(currPage, 5, true);
                 },
                 beforeSend:function(request) {
                     request.setRequestHeader("Authorization", token);
